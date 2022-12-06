@@ -10,12 +10,6 @@ int lastRightState;
 int currentMode = 0;
 
 
-bool shouldStopEffect()
-{
-    return false;
-}
-
-
 void setup()
 {
 	CircuitPlayground.begin();
@@ -25,6 +19,9 @@ void setup()
 
 void loop()
 {
+	// rainbow(0.01);
+	// wipe(100, 255, 0, 255);
+
 	bool leftState = CircuitPlayground.leftButton();
 	bool rightState = CircuitPlayground.rightButton(); 
 
@@ -47,16 +44,16 @@ void loop()
 	else if (currentMode < 0)
 		currentMode = NUM_MODES - 1;
 
-	CircuitPlayground.clearPixels();
-	if (currentMode == 1) // rainbow
+	if (currentMode == 0)
 	{
-		rainbow(100);
+		CircuitPlayground.clearPixels();
+	}
+	else if (currentMode == 1) // rainbow
+	{
+		rainbow(0.01);
 	}
 	else if (currentMode == 2)
 	{
-		for (int i = 0; i < NUM_LEDS; ++i)
-		{
-			CircuitPlayground.setPixelColor(i, 255, 0, 255);
-		}
+		blink(0.05);
 	}
 }
