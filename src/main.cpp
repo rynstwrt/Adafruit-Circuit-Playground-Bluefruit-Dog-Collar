@@ -65,8 +65,10 @@ void loop()
 		delay(BUTTON_DEBOUNCE);
 	}
 
-    currentMode %= NUM_MODES;
-    currentMode = abs(currentMode);
+    if (currentMode == NUM_MODES)
+        currentMode = 0;
+    else if (currentMode < 0)
+        currentMode = NUM_MODES - 1;
 
     if (CircuitPlayground.slideSwitch())
     {
