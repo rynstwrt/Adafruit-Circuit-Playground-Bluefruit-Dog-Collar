@@ -1,115 +1,31 @@
 #include <Adafruit_CircuitPlayground.h>
 #include <constants.h>
-#include <led_effects.h>
 
 
-// void off()
-// {
-//     CircuitPlayground.clearPixels();
-//     delay(100);
-// }
+void fillLEDs(uint32_t color)
+{
+    for (int i = 0; i < NUM_LEDS; ++i)
+    {
+        CircuitPlayground.setPixelColor(i, color);
+    }
+}
 
 
-// void blink(float delayTime, int r, int g, int b)
-// {
-//     for (int i = 0; i < NUM_LEDS; ++i)
-//     {
-//         CircuitPlayground.setPixelColor(i, r, g, b);
-//     }
-//     delay(delayTime);
-//     CircuitPlayground.clearPixels();
-//     delay(delayTime);
-// }
+bool blinkOff = false;
+void blink()
+{
+    blinkOff = !blinkOff;
+    Serial.println("BLINKING");
 
-
-// // void rainbow(float delayTime)
-// // {
-// //     for (long pixelHue = 0; pixelHue < 5 * 65536; ++pixelHue)
-// //     {
-// //         int hue = pixelHue + (65536 / NUM_LEDS);
-// //         for (int i = 0; i < NUM_LEDS; ++i)
-// //         {
-// //             CircuitPlayground.setPixelColor(i, CircuitPlayground.colorWheel(hue));
-// //         }
-
-// //         delay(delayTime);
-// //     }
-// // }
-
-
-// int rainbowIndex = 0;
-// void rainbow()
-// {
-//     uint32_t color = CircuitPlayground.colorWheel(rainbowIndex);
-//     for (int j = 0; j < NUM_LEDS; ++j)
-//     {
-//         CircuitPlayground.setPixelColor(j, color);
-//     }
-
-//     rainbowIndex += 1;
-//     rainbowIndex %= 255;
-// }
-
-
-// void wipe(float delayTime, int r, int g, int b)
-// {
-//     for (int i = 0; i < NUM_LEDS; ++i)
-//     {
-//         CircuitPlayground.setPixelColor(i, r, g, b);
-//         delay(delayTime);
-//     }
-
-//     for (int i = 0; i < NUM_LEDS; ++i)
-//     {
-//         CircuitPlayground.setPixelColor(i, 0, 0, 0);
-//         delay(delayTime);
-//     }
-// }
-
-
-// void rainbowWipe(float delayTime)
-// {
-//     for (int i = 0; i < NUM_LEDS; ++i)
-//     {
-//         CircuitPlayground.setPixelColor(i, CircuitPlayground.colorWheel(i * RAINBOW_STEP));
-//         delay(delayTime);
-//     }
-
-//     for (int i = 0; i < NUM_LEDS; ++i)
-//     {
-//         CircuitPlayground.setPixelColor(i, 0, 0, 0);
-//         delay(delayTime);
-//     }
-// }
-
-
-// void fillTheater(bool offset, uint32_t color)
-// {
-//     CircuitPlayground.clearPixels();
-
-//     for (int i = 0; i < NUM_LEDS; ++i)
-//     {
-//         if (i % 2 == 0)
-//         {
-//             int index = offset ? i + 1 : i;
-//             CircuitPlayground.setPixelColor(index, color);
-//         }
-//     }
-// }
-
-
-// void rainbowTheater(float delayTime)
-// {
-//     for (int ri = 0; ri < 255; ri++)
-//     {
-//         uint32_t color = CircuitPlayground.colorWheel(ri);
-        
-//         fillTheater(false, color);
-//         delay(delayTime);
-//         fillTheater(true, color);
-//         delay(delayTime);
-//     }
-// }
+    if (blinkOff)
+    {
+        fillLEDs((0, 0, 0));
+    }
+    else
+    {
+        fillLEDs((255, 0, 255));
+    }
+}
 
 
 int rainbowSpinIndex = 0;
@@ -122,4 +38,34 @@ void rainbowSpin()
 
     ++rainbowSpinIndex;
     rainbowSpinIndex %= 255;
+}
+
+
+int rainbowIndex = 0;
+void rainbow()
+{
+    uint32_t color = CircuitPlayground.colorWheel(rainbowIndex);
+    fillLEDs(color);
+    ++rainbowIndex;
+    rainbowIndex %= 255;
+}
+
+
+bool rainbowWipeFilling = true;
+int rainbowWipeIndex = 0;
+void rainbowWipe()
+{
+    if (rainbowWipeFilling)
+        CircuitPlayground.setPixelColor(rainbowWipeIndex, CircuitPlayground.colorWheel(rainbowWipeIndex * RAINBOW_STEP));
+    else
+        CircuitPlayground.setPixelColor(rainbowWipeIndex, (0, 0, 0));
+        
+
+    if (rainbowWipeIndex == NUM_LEDS - 1)
+    {
+        rainbowWipeIndex = -1;
+        rainbowWipeFilling = !rainbowWipeFilling;
+    }
+
+    ++rainbowWipeIndex;
 }
