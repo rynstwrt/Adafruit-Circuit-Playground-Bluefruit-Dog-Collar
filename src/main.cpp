@@ -1,12 +1,10 @@
 #include <Arduino.h>
 #include <Adafruit_CircuitPlayground.h>
-#include <led_effects.h>
 #include <constants.h>
+#include <led_effects.h>
 #include <map>
 
 
-int lastLeftState;
-int lastRightState;
 int currentMode = 0;
 
 
@@ -19,23 +17,14 @@ void setup()
 
 void loop()
 {
-	// rainbow(0.01);
-	// wipe(100, 255, 0, 255);
-
-	bool leftState = CircuitPlayground.leftButton();
-	bool rightState = CircuitPlayground.rightButton(); 
-
-	if (lastLeftState != leftState)
+	if (CircuitPlayground.leftButton())
 	{
 		currentMode -= 1;
-		lastLeftState = leftState;
 		delay(BUTTON_DEBOUNCE);
 	}
-
-	if (lastRightState != rightState)
+	else if (CircuitPlayground.rightButton())
 	{
 		currentMode += 1;
-		lastRightState = rightState;
 		delay(BUTTON_DEBOUNCE);
 	}
 
@@ -44,16 +33,17 @@ void loop()
 	else if (currentMode < 0)
 		currentMode = NUM_MODES - 1;
 
-	if (currentMode == 0)
-	{
-		CircuitPlayground.clearPixels();
-	}
-	else if (currentMode == 1) // rainbow
-	{
-		rainbow(0.01);
-	}
-	else if (currentMode == 2)
-	{
-		blink(0.05);
-	}
+	
+    if (currentMode == 0)
+    {
+        CircuitPlayground.clearPixels();
+    }
+    else if (currentMode == 1)
+    {
+        rainbowSpin();
+    }
+    else if (currentMode == 2)
+    {
+        rainbow();
+    }
 }
