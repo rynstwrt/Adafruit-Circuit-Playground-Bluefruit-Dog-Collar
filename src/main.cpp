@@ -68,20 +68,29 @@ void loop()
     currentMode %= NUM_MODES;
     currentMode = abs(currentMode);
 
-    if (currentMode != previousMode)
+    if (CircuitPlayground.slideSwitch())
+    {
+        if (currentMode != previousMode)
+        {
+            cancelAllEvents();
+
+            if (currentMode == 0)
+                blinkEvent.enable();
+            else if (currentMode == 1)
+                rainbowSpinEvent.enable();
+            else if (currentMode == 2)
+                rainbowEvent.enable();
+            else if (currentMode == 3)
+                rainbowWipeEvent.enable();
+
+            previousMode = currentMode;
+        }
+    }
+    else
     {
         cancelAllEvents();
-
-        if (currentMode == 0)
-            blinkEvent.enable();
-        else if (currentMode == 1)
-            rainbowSpinEvent.enable();
-        else if (currentMode == 2)
-            rainbowEvent.enable();
-        else if (currentMode == 3)
-            rainbowWipeEvent.enable();
-
-        previousMode = currentMode;
+        CircuitPlayground.clearPixels();
+        previousMode = -1;
     }
 
     updateAllEvents();

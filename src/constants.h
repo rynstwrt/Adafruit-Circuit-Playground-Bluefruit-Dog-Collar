@@ -1,5 +1,3 @@
-#include <math.h>
-
 const int NUM_LEDS = 10;
 const int LED_BRIGHTNESS = 20;
 
