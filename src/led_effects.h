@@ -1,4 +1,5 @@
 void rainbow();
 void rainbowSpin();
-void blink();
 void rainbowWipe();
+void rainbowTheater();
+void rainbowTrace();

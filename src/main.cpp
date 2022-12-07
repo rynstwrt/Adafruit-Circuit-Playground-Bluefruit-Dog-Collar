@@ -6,17 +6,16 @@
 
 int currentMode = 0;
 int previousMode = -1;
-TimerEvent blinkEvent;
+
 TimerEvent rainbowSpinEvent;
 TimerEvent rainbowEvent;
 TimerEvent rainbowWipeEvent;
+TimerEvent rainbowTheaterEvent;
+TimerEvent rainbowTraceEvent;
 
 
 void cancelAllEvents()
 {
-    blinkEvent.disable();
-    blinkEvent.reset();
-
     rainbowSpinEvent.disable();
     rainbowSpinEvent.reset();
 
@@ -25,15 +24,22 @@ void cancelAllEvents()
 
     rainbowWipeEvent.disable();
     rainbowWipeEvent.reset();
+
+    rainbowTheaterEvent.disable();
+    rainbowTheaterEvent.reset();
+
+    rainbowTraceEvent.disable();
+    rainbowTraceEvent.reset();
 }
 
 
 void updateAllEvents()
 {
-    blinkEvent.update();
     rainbowSpinEvent.update();
     rainbowEvent.update();
     rainbowWipeEvent.update();
+    rainbowTheaterEvent.update();
+    rainbowTraceEvent.update();
 }
 
 
@@ -41,10 +47,11 @@ void setup()
 {
     CircuitPlayground.begin(LED_BRIGHTNESS);
 
-    blinkEvent.set(500, blink);
-    rainbowSpinEvent.set(10, rainbowSpin);
-    rainbowEvent.set(5, rainbow);
-    rainbowWipeEvent.set(20, rainbowWipe);
+    rainbowSpinEvent.set(2, rainbowSpin);
+    rainbowEvent.set(2, rainbow);
+    rainbowWipeEvent.set(50, rainbowWipe);
+    rainbowTheaterEvent.set(100, rainbowTheater);
+    rainbowTraceEvent.set(50, rainbowTrace);
 
     cancelAllEvents();
 }
@@ -77,13 +84,15 @@ void loop()
             cancelAllEvents();
 
             if (currentMode == 0)
-                blinkEvent.enable();
-            else if (currentMode == 1)
                 rainbowSpinEvent.enable();
-            else if (currentMode == 2)
+            else if (currentMode == 1)
                 rainbowEvent.enable();
-            else if (currentMode == 3)
+            else if (currentMode == 2)
                 rainbowWipeEvent.enable();
+            else if (currentMode == 3)
+                rainbowTheaterEvent.enable();
+            else if (currentMode == 4)
+                rainbowTraceEvent.enable();
 
             previousMode = currentMode;
         }

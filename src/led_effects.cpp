@@ -11,23 +11,6 @@ void fillLEDs(uint32_t color)
 }
 
 
-bool blinkOff = false;
-void blink()
-{
-    blinkOff = !blinkOff;
-    Serial.println("BLINKING");
-
-    if (blinkOff)
-    {
-        fillLEDs((0, 0, 0));
-    }
-    else
-    {
-        fillLEDs((255, 0, 255));
-    }
-}
-
-
 int rainbowSpinIndex = 0;
 void rainbowSpin()
 {
@@ -68,4 +51,30 @@ void rainbowWipe()
     }
 
     ++rainbowWipeIndex;
+}
+
+
+bool theaterOffset = false;
+void rainbowTheater()
+{
+    CircuitPlayground.clearPixels();
+    for (int i = 0; i < NUM_LEDS; ++i)
+    {
+        if (i % 2 == 0)
+        {
+            int index = (theaterOffset) ? i + 1 : i;
+            CircuitPlayground.setPixelColor(index, CircuitPlayground.colorWheel(index * RAINBOW_STEP));
+        }
+    }
+    theaterOffset = !theaterOffset;
+}
+
+
+int rainbowTraceIndex = 0;
+void rainbowTrace()
+{
+    CircuitPlayground.clearPixels();
+    CircuitPlayground.setPixelColor(rainbowTraceIndex, CircuitPlayground.colorWheel(rainbowTraceIndex * RAINBOW_STEP));
+    ++rainbowTraceIndex;
+    rainbowTraceIndex %= NUM_LEDS;
 }
