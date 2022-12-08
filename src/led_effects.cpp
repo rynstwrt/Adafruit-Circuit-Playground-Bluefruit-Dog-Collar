@@ -2,6 +2,7 @@
 #include <constants.h>
 
 
+// ----------- HELPER FUNCTIONS ----------- //
 void fillLEDs(uint32_t color)
 {
     for (int i = 0; i < NUM_LEDS; ++i)
@@ -11,6 +12,7 @@ void fillLEDs(uint32_t color)
 }
 
 
+// ----------- EFFECTS ----------- //
 int rainbowSpinIndex = 0;
 void rainbowSpin()
 {
@@ -78,3 +80,24 @@ void rainbowTrace()
     ++rainbowTraceIndex;
     rainbowTraceIndex %= NUM_LEDS;
 }
+
+
+bool orangeBlackWipeIsOrange = true;
+int orangeBlackWipeIndex = 0;
+void orangeBlackWipe()
+{
+    if (orangeBlackWipeIsOrange)
+        CircuitPlayground.setPixelColor(orangeBlackWipeIndex, 255, 84, 10);
+    else
+        CircuitPlayground.setPixelColor(orangeBlackWipeIndex, 0, 0, 0);
+
+    ++orangeBlackWipeIndex;
+    
+    if (orangeBlackWipeIndex == NUM_LEDS)
+    {
+        orangeBlackWipeIsOrange = !orangeBlackWipeIsOrange;
+        orangeBlackWipeIndex = 0;
+    }
+}
+
+

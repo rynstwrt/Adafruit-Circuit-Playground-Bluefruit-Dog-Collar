@@ -12,6 +12,7 @@ TimerEvent rainbowEvent;
 TimerEvent rainbowWipeEvent;
 TimerEvent rainbowTheaterEvent;
 TimerEvent rainbowTraceEvent;
+TimerEvent orangeBlackWipeEvent;
 
 
 void cancelAllEvents()
@@ -30,6 +31,9 @@ void cancelAllEvents()
 
     rainbowTraceEvent.disable();
     rainbowTraceEvent.reset();
+
+    orangeBlackWipeEvent.disable();
+    orangeBlackWipeEvent.reset();
 }
 
 
@@ -40,6 +44,7 @@ void updateAllEvents()
     rainbowWipeEvent.update();
     rainbowTheaterEvent.update();
     rainbowTraceEvent.update();
+    orangeBlackWipeEvent.update();
 }
 
 
@@ -52,6 +57,7 @@ void setup()
     rainbowWipeEvent.set(50, rainbowWipe);
     rainbowTheaterEvent.set(100, rainbowTheater);
     rainbowTraceEvent.set(50, rainbowTrace);
+    orangeBlackWipeEvent.set(50, orangeBlackWipe);
 
     cancelAllEvents();
 }
@@ -93,6 +99,8 @@ void loop()
                 rainbowTheaterEvent.enable();
             else if (currentMode == 4)
                 rainbowTraceEvent.enable();
+            else if (currentMode == 5)
+                orangeBlackWipeEvent.enable();
 
             previousMode = currentMode;
         }
