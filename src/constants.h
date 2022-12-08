@@ -6,5 +6,5 @@ const int RAINBOW_STEP = floor(255 / NUM_LEDS);
 
 const int MAX_DB_THRESHOLD = 100;
 
-const int MIN_BRIGHTNESS = 30;
+const int MIN_BRIGHTNESS = 10;
 const int BRIGHTNESS_INCREMENT = 50;

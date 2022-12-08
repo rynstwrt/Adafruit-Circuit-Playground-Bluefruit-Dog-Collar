@@ -63,7 +63,6 @@ void updateAllEvents()
 void setup()
 {
     CircuitPlayground.begin(currentBrightness);
-    CircuitPlayground.redLED(true);
 
     rainbowSpinEvent.set(2, rainbowSpin);
     solidOrangeEvent.set(100, solidOrange);
@@ -88,11 +87,13 @@ void loop()
         {
             hitMaxBrightness = true;
             currentBrightness = 255;
+            CircuitPlayground.redLED(true);
         }
         else if (hitMaxBrightness)
         {
             currentBrightness = MIN_BRIGHTNESS;
             hitMaxBrightness = false;
+            CircuitPlayground.redLED(false);
         }
 
         CircuitPlayground.setBrightness(currentBrightness);
