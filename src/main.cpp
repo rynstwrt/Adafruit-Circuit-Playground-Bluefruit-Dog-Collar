@@ -7,16 +7,21 @@
 int currentMode = 0;
 int previousMode = -1;
 
+TimerEvent solidOrangeEvent;
 TimerEvent rainbowSpinEvent;
 TimerEvent rainbowEvent;
 TimerEvent rainbowWipeEvent;
 TimerEvent rainbowTheaterEvent;
 TimerEvent rainbowTraceEvent;
 TimerEvent orangeBlackWipeEvent;
+TimerEvent orangeAngelEvent;
 
 
 void cancelAllEvents()
 {
+    solidOrangeEvent.disable();
+    solidOrangeEvent.reset();
+
     rainbowSpinEvent.disable();
     rainbowSpinEvent.reset();
 
@@ -34,17 +39,22 @@ void cancelAllEvents()
 
     orangeBlackWipeEvent.disable();
     orangeBlackWipeEvent.reset();
+
+    orangeAngelEvent.disable();
+    orangeAngelEvent.reset();
 }
 
 
 void updateAllEvents()
 {
+    solidOrangeEvent.update();
     rainbowSpinEvent.update();
     rainbowEvent.update();
     rainbowWipeEvent.update();
     rainbowTheaterEvent.update();
     rainbowTraceEvent.update();
     orangeBlackWipeEvent.update();
+    orangeAngelEvent.update();
 }
 
 
@@ -52,12 +62,14 @@ void setup()
 {
     CircuitPlayground.begin(LED_BRIGHTNESS);
 
+    solidOrangeEvent.set(100, solidOrange);
     rainbowSpinEvent.set(2, rainbowSpin);
     rainbowEvent.set(2, rainbow);
     rainbowWipeEvent.set(50, rainbowWipe);
     rainbowTheaterEvent.set(100, rainbowTheater);
     rainbowTraceEvent.set(50, rainbowTrace);
     orangeBlackWipeEvent.set(50, orangeBlackWipe);
+    orangeAngelEvent.set(35, orangeAngel);
 
     cancelAllEvents();
 }
@@ -90,17 +102,21 @@ void loop()
             cancelAllEvents();
 
             if (currentMode == 0)
-                rainbowSpinEvent.enable();
+                solidOrangeEvent.enable();
             else if (currentMode == 1)
-                rainbowEvent.enable();
+                rainbowSpinEvent.enable();
             else if (currentMode == 2)
-                rainbowWipeEvent.enable();
+                rainbowEvent.enable();
             else if (currentMode == 3)
-                rainbowTheaterEvent.enable();
+                rainbowWipeEvent.enable();
             else if (currentMode == 4)
-                rainbowTraceEvent.enable();
+                rainbowTheaterEvent.enable();
             else if (currentMode == 5)
+                rainbowTraceEvent.enable();
+            else if (currentMode == 6)
                 orangeBlackWipeEvent.enable();
+            else if (currentMode == 7)
+                orangeAngelEvent.enable();
 
             previousMode = currentMode;
         }

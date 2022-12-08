@@ -2,17 +2,15 @@
 #include <constants.h>
 
 
-// ----------- HELPER FUNCTIONS ----------- //
-void fillLEDs(uint32_t color)
+void solidOrange()
 {
     for (int i = 0; i < NUM_LEDS; ++i)
     {
-        CircuitPlayground.setPixelColor(i, color);
+        CircuitPlayground.setPixelColor(i, 255, 84, 10);
     }
 }
 
 
-// ----------- EFFECTS ----------- //
 int rainbowSpinIndex = 0;
 void rainbowSpin()
 {
@@ -30,7 +28,12 @@ int rainbowIndex = 0;
 void rainbow()
 {
     uint32_t color = CircuitPlayground.colorWheel(rainbowIndex);
-    fillLEDs(color);
+    
+    for (int i = 0; i < NUM_LEDS; ++i)
+    {
+        CircuitPlayground.setPixelColor(i, color);
+    }
+
     ++rainbowIndex;
     rainbowIndex %= 255;
 }
@@ -101,3 +104,26 @@ void orangeBlackWipe()
 }
 
 
+bool orangeAngelIsOrange = true;
+int orangeAngelIndex = 0;
+void orangeAngel()
+{
+    if (orangeAngelIsOrange)
+    {
+        CircuitPlayground.setPixelColor(orangeAngelIndex, 255, 84, 10);
+        CircuitPlayground.setPixelColor(NUM_LEDS - orangeAngelIndex - 1, 255, 84, 10);
+    }
+    else
+    {
+        CircuitPlayground.setPixelColor(orangeAngelIndex, 0, 0, 0);
+        CircuitPlayground.setPixelColor(NUM_LEDS - orangeAngelIndex - 1, 0, 0, 0);
+    }
+
+    ++orangeAngelIndex;
+
+    if (orangeAngelIndex == floor(NUM_LEDS / 2))
+    {
+        orangeAngelIsOrange = !orangeAngelIsOrange;
+        orangeAngelIndex = 0;
+    }
+}
