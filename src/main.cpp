@@ -4,6 +4,8 @@
 #include <TimerEvent.h>
 
 
+int currentBrightness = MIN_BRIGHTNESS;
+bool hitMaxBrightness = false;
 int currentMode = 0;
 int previousMode = -1;
 
@@ -60,7 +62,7 @@ void updateAllEvents()
 
 void setup()
 {
-    CircuitPlayground.begin(LED_BRIGHTNESS);
+    CircuitPlayground.begin(currentBrightness);
     CircuitPlayground.redLED(true);
 
     rainbowSpinEvent.set(2, rainbowSpin);
@@ -80,11 +82,24 @@ void loop()
 {   
     if (CircuitPlayground.leftButton())
 	{
-		currentMode -= 1;
-        CircuitPlayground.clearPixels();
+		currentBrightness += BRIGHTNESS_INCREMENT;
+
+        if (!hitMaxBrightness && currentBrightness >= 255)
+        {
+            hitMaxBrightness = true;
+            currentBrightness = 255;
+        }
+        else if (hitMaxBrightness)
+        {
+            currentBrightness = MIN_BRIGHTNESS;
+            hitMaxBrightness = false;
+        }
+
+        CircuitPlayground.setBrightness(currentBrightness);
         delay(BUTTON_DEBOUNCE);
 	}
-	else if (CircuitPlayground.rightButton())
+	
+    if (CircuitPlayground.rightButton())
 	{
 		currentMode += 1;
         CircuitPlayground.clearPixels();
