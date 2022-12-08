@@ -7,7 +7,6 @@
 int currentMode = 0;
 int previousMode = -1;
 
-TimerEvent rainbowFursonaEvent;
 TimerEvent rainbowSpinEvent;
 TimerEvent solidOrangeEvent;
 TimerEvent rainbowEvent;
@@ -20,9 +19,6 @@ TimerEvent rainbowSoundReactiveEvent;
 
 void cancelAllEvents()
 {
-    rainbowFursonaEvent.disable();
-    rainbowFursonaEvent.reset();
-
     rainbowSpinEvent.disable();
     rainbowSpinEvent.reset();
 
@@ -51,7 +47,6 @@ void cancelAllEvents()
 
 void updateAllEvents()
 {
-    rainbowFursonaEvent.update();
     rainbowSpinEvent.update();
     solidOrangeEvent.update();
     rainbowEvent.update();
@@ -68,7 +63,6 @@ void setup()
     CircuitPlayground.begin(LED_BRIGHTNESS);
     CircuitPlayground.redLED(true);
 
-    rainbowFursonaEvent.set(100, rainbowFursona);
     rainbowSpinEvent.set(2, rainbowSpin);
     solidOrangeEvent.set(100, solidOrange);
     rainbowEvent.set(2, rainbow);
