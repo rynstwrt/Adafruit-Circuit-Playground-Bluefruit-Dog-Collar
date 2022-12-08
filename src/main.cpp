@@ -7,23 +7,27 @@
 int currentMode = 0;
 int previousMode = -1;
 
-TimerEvent solidOrangeEvent;
+TimerEvent rainbowFursonaEvent;
 TimerEvent rainbowSpinEvent;
+TimerEvent solidOrangeEvent;
 TimerEvent rainbowEvent;
 TimerEvent rainbowWipeEvent;
 TimerEvent rainbowTheaterEvent;
 TimerEvent rainbowTraceEvent;
-TimerEvent orangeBlackWipeEvent;
-TimerEvent orangeAngelEvent;
+TimerEvent rainbowAngelEvent;
+TimerEvent rainbowSoundReactiveEvent;
 
 
 void cancelAllEvents()
 {
-    solidOrangeEvent.disable();
-    solidOrangeEvent.reset();
+    rainbowFursonaEvent.disable();
+    rainbowFursonaEvent.reset();
 
     rainbowSpinEvent.disable();
     rainbowSpinEvent.reset();
+
+    solidOrangeEvent.disable();
+    solidOrangeEvent.reset();
 
     rainbowEvent.disable();
     rainbowEvent.reset();
@@ -37,39 +41,42 @@ void cancelAllEvents()
     rainbowTraceEvent.disable();
     rainbowTraceEvent.reset();
 
-    orangeBlackWipeEvent.disable();
-    orangeBlackWipeEvent.reset();
+    rainbowAngelEvent.disable();
+    rainbowAngelEvent.reset();
 
-    orangeAngelEvent.disable();
-    orangeAngelEvent.reset();
+    rainbowSoundReactiveEvent.disable();
+    rainbowSoundReactiveEvent.reset();
 }
 
 
 void updateAllEvents()
 {
-    solidOrangeEvent.update();
+    rainbowFursonaEvent.update();
     rainbowSpinEvent.update();
+    solidOrangeEvent.update();
     rainbowEvent.update();
     rainbowWipeEvent.update();
     rainbowTheaterEvent.update();
     rainbowTraceEvent.update();
-    orangeBlackWipeEvent.update();
-    orangeAngelEvent.update();
+    rainbowAngelEvent.update();
+    rainbowSoundReactiveEvent.update();
 }
 
 
 void setup()
 {
     CircuitPlayground.begin(LED_BRIGHTNESS);
+    CircuitPlayground.redLED(true);
 
-    solidOrangeEvent.set(100, solidOrange);
+    rainbowFursonaEvent.set(100, rainbowFursona);
     rainbowSpinEvent.set(2, rainbowSpin);
+    solidOrangeEvent.set(100, solidOrange);
     rainbowEvent.set(2, rainbow);
     rainbowWipeEvent.set(50, rainbowWipe);
     rainbowTheaterEvent.set(100, rainbowTheater);
     rainbowTraceEvent.set(50, rainbowTrace);
-    orangeBlackWipeEvent.set(50, orangeBlackWipe);
-    orangeAngelEvent.set(35, orangeAngel);
+    rainbowAngelEvent.set(35, rainbowAngel);
+    rainbowSoundReactiveEvent.set(50, rainbowSoundReactive);
 
     cancelAllEvents();
 }
@@ -102,9 +109,9 @@ void loop()
             cancelAllEvents();
 
             if (currentMode == 0)
-                solidOrangeEvent.enable();
-            else if (currentMode == 1)
                 rainbowSpinEvent.enable();
+            else if (currentMode == 1)
+                solidOrangeEvent.enable();
             else if (currentMode == 2)
                 rainbowEvent.enable();
             else if (currentMode == 3)
@@ -114,9 +121,9 @@ void loop()
             else if (currentMode == 5)
                 rainbowTraceEvent.enable();
             else if (currentMode == 6)
-                orangeBlackWipeEvent.enable();
+                rainbowAngelEvent.enable();
             else if (currentMode == 7)
-                orangeAngelEvent.enable();
+                rainbowSoundReactiveEvent.enable();
 
             previousMode = currentMode;
         }

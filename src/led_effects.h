@@ -1,8 +1,8 @@
-void solidOrange();
 void rainbowSpin();
+void solidOrange();
 void rainbow();
 void rainbowWipe();
 void rainbowTheater();
 void rainbowTrace();
-void orangeBlackWipe();
-void orangeAngel();
+void rainbowAngel();
+void rainbowSoundReactive();

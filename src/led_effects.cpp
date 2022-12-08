@@ -2,15 +2,6 @@
 #include <constants.h>
 
 
-void solidOrange()
-{
-    for (int i = 0; i < NUM_LEDS; ++i)
-    {
-        CircuitPlayground.setPixelColor(i, 255, 84, 10);
-    }
-}
-
-
 int rainbowSpinIndex = 0;
 void rainbowSpin()
 {
@@ -21,6 +12,15 @@ void rainbowSpin()
 
     ++rainbowSpinIndex;
     rainbowSpinIndex %= 255;
+}
+
+
+void solidOrange()
+{
+    for (int i = 0; i < NUM_LEDS; ++i)
+    {
+        CircuitPlayground.setPixelColor(i, 255, 84, 10);
+    }
 }
 
 
@@ -46,7 +46,7 @@ void rainbowWipe()
     if (rainbowWipeFilling)
         CircuitPlayground.setPixelColor(rainbowWipeIndex, CircuitPlayground.colorWheel(rainbowWipeIndex * RAINBOW_STEP));
     else
-        CircuitPlayground.setPixelColor(rainbowWipeIndex, (0, 0, 0));
+        CircuitPlayground.setPixelColor(rainbowWipeIndex, 0, 0, 0);
         
 
     if (rainbowWipeIndex == NUM_LEDS - 1)
@@ -76,54 +76,56 @@ void rainbowTheater()
 
 
 int rainbowTraceIndex = 0;
+bool rainbowTraceForwards = true;
 void rainbowTrace()
 {
     CircuitPlayground.clearPixels();
     CircuitPlayground.setPixelColor(rainbowTraceIndex, CircuitPlayground.colorWheel(rainbowTraceIndex * RAINBOW_STEP));
-    ++rainbowTraceIndex;
-    rainbowTraceIndex %= NUM_LEDS;
-}
 
-
-bool orangeBlackWipeIsOrange = true;
-int orangeBlackWipeIndex = 0;
-void orangeBlackWipe()
-{
-    if (orangeBlackWipeIsOrange)
-        CircuitPlayground.setPixelColor(orangeBlackWipeIndex, 255, 84, 10);
-    else
-        CircuitPlayground.setPixelColor(orangeBlackWipeIndex, 0, 0, 0);
-
-    ++orangeBlackWipeIndex;
+    rainbowTraceIndex += rainbowTraceForwards ? 1 : -1;
     
-    if (orangeBlackWipeIndex == NUM_LEDS)
+    if (rainbowTraceIndex == NUM_LEDS || rainbowTraceIndex < 0)
     {
-        orangeBlackWipeIsOrange = !orangeBlackWipeIsOrange;
-        orangeBlackWipeIndex = 0;
+        rainbowTraceForwards = !rainbowTraceForwards;
     }
 }
 
 
-bool orangeAngelIsOrange = true;
-int orangeAngelIndex = 0;
-void orangeAngel()
+bool rainbowAngelIsOrange = true;
+int rainbowAngelIndex = 0;
+void rainbowAngel()
 {
-    if (orangeAngelIsOrange)
+    if (rainbowAngelIsOrange)
     {
-        CircuitPlayground.setPixelColor(orangeAngelIndex, 255, 84, 10);
-        CircuitPlayground.setPixelColor(NUM_LEDS - orangeAngelIndex - 1, 255, 84, 10);
+        uint32_t color = CircuitPlayground.colorWheel(RAINBOW_STEP * rainbowAngelIndex * 2);
+        CircuitPlayground.setPixelColor(rainbowAngelIndex, color);
+        CircuitPlayground.setPixelColor(NUM_LEDS - rainbowAngelIndex - 1, color);
     }
     else
     {
-        CircuitPlayground.setPixelColor(orangeAngelIndex, 0, 0, 0);
-        CircuitPlayground.setPixelColor(NUM_LEDS - orangeAngelIndex - 1, 0, 0, 0);
+        CircuitPlayground.setPixelColor(rainbowAngelIndex, 0, 0, 0);
+        CircuitPlayground.setPixelColor(NUM_LEDS - rainbowAngelIndex - 1, 0, 0, 0);
     }
 
-    ++orangeAngelIndex;
+    ++rainbowAngelIndex;
 
-    if (orangeAngelIndex == floor(NUM_LEDS / 2))
+    if (rainbowAngelIndex == floor(NUM_LEDS / 2))
     {
-        orangeAngelIsOrange = !orangeAngelIsOrange;
-        orangeAngelIndex = 0;
+        rainbowAngelIsOrange = !rainbowAngelIsOrange;
+        rainbowAngelIndex = 0;
+    }
+}
+
+
+void rainbowSoundReactive()
+{
+    CircuitPlayground.clearPixels();
+
+    float micPressureLevel = CircuitPlayground.mic.soundPressureLevel(10) - (MAX_DB_THRESHOLD / 10 * 5);
+    int numUsedLEDs = floor(micPressureLevel / (MAX_DB_THRESHOLD / 10));
+
+    for (int i = 0; i < numUsedLEDs; ++i)
+    {
+        CircuitPlayground.setPixelColor(i, CircuitPlayground.colorWheel(i * RAINBOW_STEP));
     }
 }
