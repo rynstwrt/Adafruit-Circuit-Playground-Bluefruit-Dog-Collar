@@ -2,33 +2,28 @@
 #include <led_effects.h>
 #include <constants.h>
 #include <TimerEvent.h>
+#include <bluefruit.h>
 
 
 int currentBrightness = MIN_BRIGHTNESS;
 bool hitMaxBrightness = false;
 int currentMode = 0;
 int previousMode = -1;
+bool justTapped = false;
 
 TimerEvent rainbowSpinEvent;
-TimerEvent solidOrangeEvent;
-TimerEvent rainbowEvent;
 TimerEvent rainbowWipeEvent;
 TimerEvent rainbowTheaterEvent;
 TimerEvent rainbowTraceEvent;
 TimerEvent rainbowAngelEvent;
 TimerEvent rainbowSoundReactiveEvent;
+TimerEvent rainbowAngelTraceEvent;
 
 
 void cancelAllEvents()
 {
     rainbowSpinEvent.disable();
     rainbowSpinEvent.reset();
-
-    solidOrangeEvent.disable();
-    solidOrangeEvent.reset();
-
-    rainbowEvent.disable();
-    rainbowEvent.reset();
 
     rainbowWipeEvent.disable();
     rainbowWipeEvent.reset();
@@ -44,19 +39,60 @@ void cancelAllEvents()
 
     rainbowSoundReactiveEvent.disable();
     rainbowSoundReactiveEvent.reset();
+
+    rainbowAngelTraceEvent.disable();
+    rainbowAngelTraceEvent.reset();
 }
 
 
 void updateAllEvents()
 {
     rainbowSpinEvent.update();
-    solidOrangeEvent.update();
-    rainbowEvent.update();
     rainbowWipeEvent.update();
     rainbowTheaterEvent.update();
     rainbowTraceEvent.update();
     rainbowAngelEvent.update();
     rainbowSoundReactiveEvent.update();
+    rainbowAngelTraceEvent.update();
+}
+
+
+void onLeftButtonClick()
+{
+    currentMode -= 1;
+    CircuitPlayground.clearPixels();  
+    delay(BUTTON_DEBOUNCE);
+}
+
+
+void onRightButtonClick()
+{
+    currentMode += 1;
+    CircuitPlayground.clearPixels();
+    delay(BUTTON_DEBOUNCE);
+}
+
+
+void onBrightnessButtonTap()
+{
+    currentBrightness += BRIGHTNESS_INCREMENT;
+
+    if (!hitMaxBrightness && currentBrightness >= 255)
+    {
+        hitMaxBrightness = true;
+        currentBrightness = 255;
+        CircuitPlayground.redLED(true);
+    }
+    else if (hitMaxBrightness)
+    {
+        currentBrightness = MIN_BRIGHTNESS;
+        hitMaxBrightness = false;
+        CircuitPlayground.redLED(false);
+    }
+
+    CircuitPlayground.setBrightness(currentBrightness);
+
+    delay(BUTTON_DEBOUNCE);
 }
 
 
@@ -65,13 +101,12 @@ void setup()
     CircuitPlayground.begin(currentBrightness);
 
     rainbowSpinEvent.set(2, rainbowSpin);
-    solidOrangeEvent.set(100, solidOrange);
-    rainbowEvent.set(2, rainbow);
     rainbowWipeEvent.set(50, rainbowWipe);
     rainbowTheaterEvent.set(100, rainbowTheater);
     rainbowTraceEvent.set(50, rainbowTrace);
-    rainbowAngelEvent.set(35, rainbowAngel);
+    rainbowAngelEvent.set(45, rainbowAngel);
     rainbowSoundReactiveEvent.set(50, rainbowSoundReactive);
+    rainbowAngelTraceEvent.set(45, rainbowAngelTrace);
 
     cancelAllEvents();
 }
@@ -80,33 +115,12 @@ void setup()
 void loop()
 {   
     if (CircuitPlayground.leftButton())
-	{
-		currentBrightness += BRIGHTNESS_INCREMENT;
-
-        if (!hitMaxBrightness && currentBrightness >= 255)
-        {
-            hitMaxBrightness = true;
-            currentBrightness = 255;
-            CircuitPlayground.redLED(true);
-        }
-        else if (hitMaxBrightness)
-        {
-            currentBrightness = MIN_BRIGHTNESS;
-            hitMaxBrightness = false;
-            CircuitPlayground.redLED(false);
-        }
-
-        CircuitPlayground.setBrightness(currentBrightness);
-        delay(BUTTON_DEBOUNCE);
-	}
-	
+        onLeftButtonClick();
     if (CircuitPlayground.rightButton())
-	{
-		currentMode += 1;
-        CircuitPlayground.clearPixels();
-		delay(BUTTON_DEBOUNCE);
-	}
-
+        onRightButtonClick();
+    if (CircuitPlayground.readCap(BRIGHTNESS_BUTTON) > BRIGHTNESS_BUTTON_THRESHOLD)
+        onBrightnessButtonTap();
+    
     if (currentMode == NUM_MODES)
         currentMode = 0;
     else if (currentMode < 0)
@@ -121,19 +135,17 @@ void loop()
             if (currentMode == 0)
                 rainbowSpinEvent.enable();
             else if (currentMode == 1)
-                solidOrangeEvent.enable();
-            else if (currentMode == 2)
-                rainbowEvent.enable();
-            else if (currentMode == 3)
                 rainbowWipeEvent.enable();
-            else if (currentMode == 4)
+            else if (currentMode == 2)
                 rainbowTheaterEvent.enable();
-            else if (currentMode == 5)
+            else if (currentMode == 3)
                 rainbowTraceEvent.enable();
-            else if (currentMode == 6)
+            else if (currentMode == 4)
                 rainbowAngelEvent.enable();
-            else if (currentMode == 7)
+            else if (currentMode == 5)
                 rainbowSoundReactiveEvent.enable();
+            else if (currentMode == 6)
+                rainbowAngelTraceEvent.enable();
 
             previousMode = currentMode;
         }
