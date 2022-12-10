@@ -3,13 +3,19 @@
 #include <constants.h>
 #include <TimerEvent.h>
 #include <bluefruit.h>
+#include <packetParser.h>
 
 
 int currentBrightness = MIN_BRIGHTNESS;
 bool hitMaxBrightness = false;
+bool hitMinBrightness = true;
 int currentMode = 0;
 int previousMode = -1;
-bool justTapped = false;
+
+BLEDis bledis; // device info
+BLEUart bleuart; // uart over ble
+BLEBas blebas; // battery
+extern uint8_t packetbuffer[];
 
 TimerEvent rainbowSpinEvent;
 TimerEvent rainbowWipeEvent;
@@ -73,22 +79,14 @@ void onRightButtonClick()
 }
 
 
-void onBrightnessButtonTap()
+void changeBrightness(bool increase)
 {
-    currentBrightness += BRIGHTNESS_INCREMENT;
+    currentBrightness += increase ? BRIGHTNESS_INCREMENT : -BRIGHTNESS_INCREMENT;
 
-    if (!hitMaxBrightness && currentBrightness >= 255)
-    {
-        hitMaxBrightness = true;
+    if (currentBrightness > 255)
         currentBrightness = 255;
-        CircuitPlayground.redLED(true);
-    }
-    else if (hitMaxBrightness)
-    {
+    else if (currentBrightness < MIN_BRIGHTNESS)
         currentBrightness = MIN_BRIGHTNESS;
-        hitMaxBrightness = false;
-        CircuitPlayground.redLED(false);
-    }
 
     CircuitPlayground.setBrightness(currentBrightness);
 
@@ -99,6 +97,29 @@ void onBrightnessButtonTap()
 void setup()
 {
     CircuitPlayground.begin(currentBrightness);
+
+    Bluefruit.begin();
+    Bluefruit.setTxPower(4);
+    Bluefruit.setName("ACPB Dog Collar");
+
+    bledis.setManufacturer("Adafruit Industries");
+    bledis.setModel("Circuit Playground Bluefruit");
+    bledis.begin();
+    
+    bleuart.begin();
+
+    blebas.begin();
+    blebas.write(100);
+
+    // set up advertising packet and start
+    Bluefruit.Advertising.addFlags(BLE_GAP_ADV_FLAGS_LE_ONLY_GENERAL_DISC_MODE);
+    Bluefruit.Advertising.addTxPower();
+    Bluefruit.Advertising.addService(bleuart);
+    Bluefruit.ScanResponse.addName();
+    Bluefruit.Advertising.restartOnDisconnect(true);
+    Bluefruit.Advertising.setInterval(32, 244);
+    Bluefruit.Advertising.setFastTimeout(30);
+    Bluefruit.Advertising.start(0);
 
     rainbowSpinEvent.set(2, rainbowSpin);
     rainbowWipeEvent.set(50, rainbowWipe);
@@ -115,11 +136,28 @@ void setup()
 void loop()
 {   
     if (CircuitPlayground.leftButton())
-        onLeftButtonClick();
+        changeBrightness(false);
     if (CircuitPlayground.rightButton())
-        onRightButtonClick();
-    if (CircuitPlayground.readCap(BRIGHTNESS_BUTTON) > BRIGHTNESS_BUTTON_THRESHOLD)
-        onBrightnessButtonTap();
+        changeBrightness(true);
+
+    uint8_t packetLen = readPacket(&bleuart, BLUETOOTH_PACKET_TIMEOUT);
+    if (packetLen > 0 && packetbuffer[1] == 'B')
+    {
+        uint8_t buttonNum = packetbuffer[2] - '0';
+        bool pressed = packetbuffer[3] - '0';
+        
+        if (pressed)
+        {
+            if (buttonNum == 8) // right
+            {
+                onRightButtonClick();
+            }
+            else if (buttonNum == 7) // left
+            {
+                onLeftButtonClick();
+            }
+        }
+    }
     
     if (currentMode == NUM_MODES)
         currentMode = 0;
