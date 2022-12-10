@@ -4,6 +4,7 @@
 #include <TimerEvent.h>
 #include <bluefruit.h>
 #include <packetParser.h>
+#include <music.h>
 
 
 int currentBrightness = MIN_BRIGHTNESS;
@@ -111,7 +112,6 @@ void setup()
     blebas.begin();
     blebas.write(100);
 
-    // set up advertising packet and start
     Bluefruit.Advertising.addFlags(BLE_GAP_ADV_FLAGS_LE_ONLY_GENERAL_DISC_MODE);
     Bluefruit.Advertising.addTxPower();
     Bluefruit.Advertising.addService(bleuart);
@@ -150,13 +150,13 @@ void loop()
         if (pressed)
         {
             if (buttonNum == 8) // right
-            {
                 onRightButtonClick();
-            }
             else if (buttonNum == 7) // left
-            {
                 onLeftButtonClick();
-            }
+            else if (buttonNum == 5) // up
+                changeBrightness(true);
+            else if (buttonNum == 6) // down
+                changeBrightness(false);
         }
     }
     
