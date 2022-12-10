@@ -116,6 +116,7 @@ void setup()
     Bluefruit.Advertising.addTxPower();
     Bluefruit.Advertising.addService(bleuart);
     Bluefruit.ScanResponse.addName();
+    Bluefruit.autoConnLed(false);
     Bluefruit.Advertising.restartOnDisconnect(true);
     Bluefruit.Advertising.setInterval(32, 244);
     Bluefruit.Advertising.setFastTimeout(30);
