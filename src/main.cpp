@@ -182,25 +182,6 @@ void loop()
 {   
     handleLeftButton();
     handleRightButton();
-
-    uint8_t packetLen = readPacket(&bleuart, BLUETOOTH_PACKET_TIMEOUT);
-    if (packetLen > 0 && packetbuffer[1] == 'B')
-    {
-        uint8_t buttonNum = packetbuffer[2] - '0';
-        bool pressed = packetbuffer[3] - '0';
-        
-        if (pressed)
-        {
-            if (buttonNum == 8) // right
-                changeMode(true);
-            else if (buttonNum == 7) // left
-                changeMode(false);
-            else if (buttonNum == 5) // up
-                changeBrightness(true);
-            else if (buttonNum == 6) // down
-                changeBrightness(false);
-        }
-    }
     
     if (currentMode == NUM_MODES)
         currentMode = 0;
