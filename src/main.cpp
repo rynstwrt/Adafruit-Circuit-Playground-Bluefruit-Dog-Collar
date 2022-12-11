@@ -14,10 +14,13 @@ bool hitMinBrightness = true;
 int currentMode = 0;
 int previousMode = -1;
 
-bool leftButtonState;
-unsigned long leftButtonTimePress = 0;
-unsigned long leftButtonTimePressLimit = 0;
-int leftButtonClicks = 0;
+unsigned long lastLeftButtonPressTime;
+bool leftButtonState = false;
+bool leftButtonSinglePress = false;
+
+unsigned long lastRightButtonPressTime;
+bool rightButtonState = false;
+bool rightButtonSinglePress = false;
 
 BLEDis bledis; // device info
 BLEUart bleuart; // uart over ble
@@ -74,7 +77,6 @@ void changeMode(bool increase)
 {
     currentMode += increase ? 1 : -1;
     CircuitPlayground.clearPixels();
-    delay(BUTTON_DEBOUNCE);
 }
 
 
@@ -88,51 +90,80 @@ void changeBrightness(bool increase)
         currentBrightness = MIN_BRIGHTNESS;
 
     CircuitPlayground.setBrightness(currentBrightness);
-
-    delay(BUTTON_DEBOUNCE);
 }
 
 
-void onShortButtonPress(bool isRightButton)
+void handleLeftButton()
 {
-    String button = isRightButton ? "right" : "left";
-    Serial.println(button + " short pressed");
+    bool currentLeftButtonState = CircuitPlayground.leftButton();
+
+    if (!currentLeftButtonState && leftButtonState == 0)
+    {
+        unsigned long currentPressTime = millis();
+
+        if (currentPressTime - lastLeftButtonPressTime < DOUBLE_CLICK_THRESHOLD)
+        {
+            leftButtonSinglePress = false;
+            changeMode(false);
+        }
+        else 
+        {
+            leftButtonSinglePress = true;
+        }
+
+        lastLeftButtonPressTime = currentPressTime;
+        leftButtonState = 1;
+    }
+    else if (currentLeftButtonState)
+    {
+        leftButtonState = false;
+    }
+
+    if (leftButtonSinglePress == 1 && millis() - lastLeftButtonPressTime > DOUBLE_CLICK_THRESHOLD)
+    {
+        leftButtonSinglePress = false;
+        changeBrightness(false);
+    }
 }
 
 
-void onLongButtonPress(bool isRightButton)
+void handleRightButton()
 {
-    String button = isRightButton ? "right" : "left";
-    Serial.println(button + " long pressed");
+    bool currentRightButtonState = CircuitPlayground.rightButton();
+
+    if (!currentRightButtonState && rightButtonState == 0)
+    {
+        unsigned long currentPressTime = millis();
+
+        if (currentPressTime - lastRightButtonPressTime < DOUBLE_CLICK_THRESHOLD)
+        {
+            rightButtonSinglePress = false;
+            changeMode(true);
+        }
+        else 
+        {
+            rightButtonSinglePress = true;
+        }
+
+        lastRightButtonPressTime = currentPressTime;
+        rightButtonState = 1;
+    }
+    else if (currentRightButtonState)
+    {
+        rightButtonState = false;
+    }
+
+    if (rightButtonSinglePress== 1 && millis() - lastRightButtonPressTime > DOUBLE_CLICK_THRESHOLD)
+    {
+        rightButtonSinglePress = false;
+        changeBrightness(true);
+    }
 }
 
 
 void setup()
 {
     CircuitPlayground.begin(currentBrightness);
-
-    Bluefruit.begin();
-    Bluefruit.setTxPower(4);
-    Bluefruit.setName("ACPB Dog Collar");
-
-    bledis.setManufacturer("Adafruit Industries");
-    bledis.setModel("Circuit Playground Bluefruit");
-    bledis.begin();
-    
-    bleuart.begin();
-
-    blebas.begin();
-    blebas.write(100);
-
-    Bluefruit.Advertising.addFlags(BLE_GAP_ADV_FLAGS_LE_ONLY_GENERAL_DISC_MODE);
-    Bluefruit.Advertising.addTxPower();
-    Bluefruit.Advertising.addService(bleuart);
-    Bluefruit.ScanResponse.addName();
-    Bluefruit.autoConnLed(false);
-    Bluefruit.Advertising.restartOnDisconnect(true);
-    Bluefruit.Advertising.setInterval(32, 244);
-    Bluefruit.Advertising.setFastTimeout(30);
-    Bluefruit.Advertising.start(0);
 
     rainbowSpinEvent.set(2, rainbowSpin);
     rainbowWipeEvent.set(50, rainbowWipe);
@@ -141,75 +172,16 @@ void setup()
     rainbowAngelEvent.set(45, rainbowAngel);
     rainbowSoundReactiveEvent.set(50, rainbowSoundReactive);
     rainbowAngelTraceEvent.set(45, rainbowAngelTrace);
-
     cancelAllEvents();
+
+    lastLeftButtonPressTime = millis();
 }
 
 
 void loop()
 {   
-    leftButtonState = CircuitPlayground.leftButton();
-
-    if (leftButtonState)
-    {
-        delay(200);
-
-        if (leftButtonClicks == 0)
-        {
-            leftButtonTimePress = millis();
-            leftButtonTimePressLimit = leftButtonTimePress + 1000;
-            leftButtonClicks = 1;
-        }
-        else if (leftButtonClicks == 1 && millis() < leftButtonTimePressLimit)
-        {
-            Serial.println("short");
-
-            leftButtonTimePress = 0;
-            leftButtonTimePressLimit = 0;
-            leftButtonClicks = 0;
-        }
-    }
-
-    if (leftButtonClicks == 1 && leftButtonTimePressLimit != 0 && millis() > leftButtonTimePressLimit)
-    {
-        leftButtonTimePress = 0;
-        leftButtonTimePressLimit = 0;
-        leftButtonClicks = 0;
-
-        Serial.println("Double PRESS");
-    }
-
-    // if (leftButtonState)
-    // {
-    //     if (!prevLeftButtonState)
-    //     {
-    //         lastLeftButtonTime = millis();
-    //     }
-
-    //     prevLeftButtonState = true;
-    // }
-    // else 
-    // {
-    //     if (prevLeftButtonState)
-    //     {
-    //         if (millis() - lastLeftButtonTime > BUTTON_LONG_PRESS_DURATION)
-    //         {
-    //             onLongButtonPress(false);
-    //         }
-    //         else 
-    //         {
-    //             onShortButtonPress(false);
-    //         }
-    //     }
-
-    //     prevLeftButtonState = false;
-    // }
-
-
-    // if (CircuitPlayground.leftButton())
-    //     changeBrightness(false);
-    // if (CircuitPlayground.rightButton())
-    //     changeBrightness(true);
+    handleLeftButton();
+    handleRightButton();
 
     uint8_t packetLen = readPacket(&bleuart, BLUETOOTH_PACKET_TIMEOUT);
     if (packetLen > 0 && packetbuffer[1] == 'B')
