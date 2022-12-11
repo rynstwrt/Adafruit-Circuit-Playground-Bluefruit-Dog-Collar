@@ -2,15 +2,10 @@
 #include <led_effects.h>
 #include <constants.h>
 #include <TimerEvent.h>
-#include <bluefruit.h>
-#include <packetParser.h>
 #include <music.h>
 
 
 int currentBrightness = MIN_BRIGHTNESS;
-bool hitMaxBrightness = false;
-bool hitMinBrightness = true;
-
 int currentMode = 0;
 int previousMode = -1;
 
@@ -21,11 +16,6 @@ bool leftButtonSinglePress = false;
 unsigned long lastRightButtonPressTime;
 bool rightButtonState = false;
 bool rightButtonSinglePress = false;
-
-BLEDis bledis; // device info
-BLEUart bleuart; // uart over ble
-BLEBas blebas; // battery
-extern uint8_t packetbuffer[];
 
 TimerEvent rainbowSpinEvent;
 TimerEvent rainbowWipeEvent;
