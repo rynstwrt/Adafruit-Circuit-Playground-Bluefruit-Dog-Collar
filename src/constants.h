@@ -3,7 +3,9 @@
 
 const int NUM_LEDS = 10;
 const int NUM_MODES = 7;
+
 const float BUTTON_DEBOUNCE = 200;
+const float BUTTON_LONG_PRESS_DURATION = 1000;
 
 const int RAINBOW_STEP = floor(255 / NUM_LEDS);
 

@@ -10,8 +10,14 @@
 int currentBrightness = MIN_BRIGHTNESS;
 bool hitMaxBrightness = false;
 bool hitMinBrightness = true;
+
 int currentMode = 0;
 int previousMode = -1;
+
+bool leftButtonState;
+unsigned long leftButtonTimePress = 0;
+unsigned long leftButtonTimePressLimit = 0;
+int leftButtonClicks = 0;
 
 BLEDis bledis; // device info
 BLEUart bleuart; // uart over ble
@@ -64,17 +70,9 @@ void updateAllEvents()
 }
 
 
-void onLeftButtonClick()
+void changeMode(bool increase)
 {
-    currentMode -= 1;
-    CircuitPlayground.clearPixels();  
-    delay(BUTTON_DEBOUNCE);
-}
-
-
-void onRightButtonClick()
-{
-    currentMode += 1;
+    currentMode += increase ? 1 : -1;
     CircuitPlayground.clearPixels();
     delay(BUTTON_DEBOUNCE);
 }
@@ -92,6 +90,20 @@ void changeBrightness(bool increase)
     CircuitPlayground.setBrightness(currentBrightness);
 
     delay(BUTTON_DEBOUNCE);
+}
+
+
+void onShortButtonPress(bool isRightButton)
+{
+    String button = isRightButton ? "right" : "left";
+    Serial.println(button + " short pressed");
+}
+
+
+void onLongButtonPress(bool isRightButton)
+{
+    String button = isRightButton ? "right" : "left";
+    Serial.println(button + " long pressed");
 }
 
 
@@ -136,10 +148,68 @@ void setup()
 
 void loop()
 {   
-    if (CircuitPlayground.leftButton())
-        changeBrightness(false);
-    if (CircuitPlayground.rightButton())
-        changeBrightness(true);
+    leftButtonState = CircuitPlayground.leftButton();
+
+    if (leftButtonState)
+    {
+        delay(200);
+
+        if (leftButtonClicks == 0)
+        {
+            leftButtonTimePress = millis();
+            leftButtonTimePressLimit = leftButtonTimePress + 1000;
+            leftButtonClicks = 1;
+        }
+        else if (leftButtonClicks == 1 && millis() < leftButtonTimePressLimit)
+        {
+            Serial.println("short");
+
+            leftButtonTimePress = 0;
+            leftButtonTimePressLimit = 0;
+            leftButtonClicks = 0;
+        }
+    }
+
+    if (leftButtonClicks == 1 && leftButtonTimePressLimit != 0 && millis() > leftButtonTimePressLimit)
+    {
+        leftButtonTimePress = 0;
+        leftButtonTimePressLimit = 0;
+        leftButtonClicks = 0;
+
+        Serial.println("Double PRESS");
+    }
+
+    // if (leftButtonState)
+    // {
+    //     if (!prevLeftButtonState)
+    //     {
+    //         lastLeftButtonTime = millis();
+    //     }
+
+    //     prevLeftButtonState = true;
+    // }
+    // else 
+    // {
+    //     if (prevLeftButtonState)
+    //     {
+    //         if (millis() - lastLeftButtonTime > BUTTON_LONG_PRESS_DURATION)
+    //         {
+    //             onLongButtonPress(false);
+    //         }
+    //         else 
+    //         {
+    //             onShortButtonPress(false);
+    //         }
+    //     }
+
+    //     prevLeftButtonState = false;
+    // }
+
+
+    // if (CircuitPlayground.leftButton())
+    //     changeBrightness(false);
+    // if (CircuitPlayground.rightButton())
+    //     changeBrightness(true);
 
     uint8_t packetLen = readPacket(&bleuart, BLUETOOTH_PACKET_TIMEOUT);
     if (packetLen > 0 && packetbuffer[1] == 'B')
@@ -150,9 +220,9 @@ void loop()
         if (pressed)
         {
             if (buttonNum == 8) // right
-                onRightButtonClick();
+                changeMode(true);
             else if (buttonNum == 7) // left
-                onLeftButtonClick();
+                changeMode(false);
             else if (buttonNum == 5) // up
                 changeBrightness(true);
             else if (buttonNum == 6) // down
