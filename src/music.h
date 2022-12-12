@@ -1,1 +1,0 @@
-float getFrequencyFromNote(String note, int octave);

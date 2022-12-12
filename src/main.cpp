@@ -2,7 +2,6 @@
 #include <led_effects.h>
 #include <constants.h>
 #include <TimerEvent.h>
-#include <music.h>
 
 
 int currentBrightness = MIN_BRIGHTNESS;
@@ -139,21 +138,6 @@ void handleButtons(bool isRightButton)
 }
 
 
-void playStartupTune()
-{
-    CircuitPlayground.playTone(getFrequencyFromNote("E", 6), 50);
-    CircuitPlayground.playTone(getFrequencyFromNote("E", 6), 50);
-    delay(50);
-    CircuitPlayground.playTone(getFrequencyFromNote("E", 6), 100);
-    delay(50);
-    CircuitPlayground.playTone(getFrequencyFromNote("C", 6), 100);
-    CircuitPlayground.playTone(getFrequencyFromNote("E", 6), 100);
-    CircuitPlayground.playTone(getFrequencyFromNote("G", 6), 100);
-    delay(200);
-    CircuitPlayground.playTone(getFrequencyFromNote("G", 2), 100);
-}
-
-
 void setup()
 {
     CircuitPlayground.begin(currentBrightness);
@@ -167,8 +151,6 @@ void setup()
     rainbowSoundReactiveEvent.set(50, rainbowSoundReactive);
     rainbowAngelTraceEvent.set(45, rainbowAngelTrace);
     cancelAllEvents();
-
-    playStartupTune();
 }
 
 
