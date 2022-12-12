@@ -9,14 +9,6 @@ int currentBrightness = MIN_BRIGHTNESS;
 int currentMode = 0;
 int previousMode = -1;
 
-// unsigned long lastLeftButtonPressTime;
-// bool leftButtonState = false;
-// bool leftButtonSinglePress = false;
-
-// unsigned long lastRightButtonPressTime;
-// bool rightButtonState = false;
-// bool rightButtonSinglePress = false;
-
 bool leftButtonState = false;
 unsigned long leftButtonTimer = 0;
 bool leftButtonActive = false;
@@ -82,12 +74,22 @@ void changeMode(bool increase)
 
 void changeBrightness(bool increase)
 {
-    currentBrightness += increase ? 1 : -1;
+    currentBrightness += increase ? BRIGHTNESS_INCREMENT : -BRIGHTNESS_INCREMENT;
 
-    if (currentBrightness > 255)
+    if (currentBrightness >= 255)
+    {
         currentBrightness = 255;
-    else if (currentBrightness < MIN_BRIGHTNESS)
+        CircuitPlayground.redLED(true);
+    }
+    else if (currentBrightness <= MIN_BRIGHTNESS)
+    {
         currentBrightness = MIN_BRIGHTNESS;
+        CircuitPlayground.redLED(true);
+    }
+    else 
+    {
+        CircuitPlayground.redLED(false);
+    }
 
     CircuitPlayground.setBrightness(currentBrightness);
     delay(BRIGHTNESS_CHANGE_DELAY);
@@ -137,9 +139,25 @@ void handleButtons(bool isRightButton)
 }
 
 
+void playStartupTune()
+{
+    CircuitPlayground.playTone(getFrequencyFromNote("E", 6), 50);
+    CircuitPlayground.playTone(getFrequencyFromNote("E", 6), 50);
+    delay(50);
+    CircuitPlayground.playTone(getFrequencyFromNote("E", 6), 100);
+    delay(50);
+    CircuitPlayground.playTone(getFrequencyFromNote("C", 6), 100);
+    CircuitPlayground.playTone(getFrequencyFromNote("E", 6), 100);
+    CircuitPlayground.playTone(getFrequencyFromNote("G", 6), 100);
+    delay(200);
+    CircuitPlayground.playTone(getFrequencyFromNote("G", 2), 100);
+}
+
+
 void setup()
 {
     CircuitPlayground.begin(currentBrightness);
+    CircuitPlayground.redLED(true);
 
     rainbowSpinEvent.set(2, rainbowSpin);
     rainbowWipeEvent.set(50, rainbowWipe);
@@ -149,6 +167,8 @@ void setup()
     rainbowSoundReactiveEvent.set(50, rainbowSoundReactive);
     rainbowAngelTraceEvent.set(45, rainbowAngelTrace);
     cancelAllEvents();
+
+    playStartupTune();
 }
 
 

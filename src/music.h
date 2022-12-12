@@ -1,3 +1,1 @@
-// float getFrequencyFromNote(String note);
-// void playSong();
-// void playStartupTune();
+float getFrequencyFromNote(String note, int octave);
