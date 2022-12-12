@@ -9,13 +9,23 @@ int currentBrightness = MIN_BRIGHTNESS;
 int currentMode = 0;
 int previousMode = -1;
 
-unsigned long lastLeftButtonPressTime;
-bool leftButtonState = false;
-bool leftButtonSinglePress = false;
+// unsigned long lastLeftButtonPressTime;
+// bool leftButtonState = false;
+// bool leftButtonSinglePress = false;
 
-unsigned long lastRightButtonPressTime;
+// unsigned long lastRightButtonPressTime;
+// bool rightButtonState = false;
+// bool rightButtonSinglePress = false;
+
+bool leftButtonState = false;
+unsigned long leftButtonTimer = 0;
+bool leftButtonActive = false;
+bool leftButtonLongPressActive = false;
+
 bool rightButtonState = false;
-bool rightButtonSinglePress = false;
+unsigned long rightButtonTimer = 0;
+bool rightButtonActive = false;
+bool rightButtonLongPressActive = false;
 
 TimerEvent rainbowSpinEvent;
 TimerEvent rainbowWipeEvent;
@@ -72,7 +82,7 @@ void changeMode(bool increase)
 
 void changeBrightness(bool increase)
 {
-    currentBrightness += increase ? BRIGHTNESS_INCREMENT : -BRIGHTNESS_INCREMENT;
+    currentBrightness += increase ? 1 : -1;
 
     if (currentBrightness > 255)
         currentBrightness = 255;
@@ -80,42 +90,49 @@ void changeBrightness(bool increase)
         currentBrightness = MIN_BRIGHTNESS;
 
     CircuitPlayground.setBrightness(currentBrightness);
+    delay(BRIGHTNESS_CHANGE_DELAY);
 }
 
 
 void handleButtons(bool isRightButton)
 {
-    bool currentState = isRightButton ? CircuitPlayground.rightButton() : CircuitPlayground.leftButton();
-    bool state = isRightButton ? rightButtonState : leftButtonState;
+    bool currentButtonState = isRightButton ? CircuitPlayground.rightButton() : CircuitPlayground.leftButton();
+    bool activeStatus = isRightButton ? rightButtonActive : leftButtonActive;
 
-    if (!currentState && !state)
+    if (currentButtonState)
     {
-        unsigned long currentTime = millis();
-        unsigned long lastButtonPressTime = isRightButton ? lastRightButtonPressTime : lastLeftButtonPressTime;
-
-        if (currentTime - lastButtonPressTime < DOUBLE_CLICK_THRESHOLD)
+        if (!activeStatus)
         {
-            changeMode(isRightButton);
+            isRightButton ? rightButtonActive = true : leftButtonActive = true;
+            isRightButton ? rightButtonTimer = millis() : leftButtonTimer = millis();
+        }
+
+        bool longPressActive = isRightButton ? rightButtonLongPressActive : leftButtonLongPressActive;
+        unsigned long buttonTimer = isRightButton ? rightButtonTimer : leftButtonTimer;
+        if (millis() - buttonTimer > LONG_BUTTON_HOLD_THRESHOLD && !longPressActive) // long hold
+        {
+            isRightButton ? rightButtonLongPressActive = true : leftButtonLongPressActive = true;
+            isRightButton ? rightButtonState = !rightButtonState : leftButtonState = !leftButtonState;
+        }
+    }
+    else 
+    {
+        if (activeStatus)
+        {
+            isRightButton ? rightButtonLongPressActive = false : leftButtonLongPressActive = false;
+
+            unsigned long buttonTimer = isRightButton ? rightButtonTimer : leftButtonTimer;
+            if (millis() - buttonTimer < LONG_BUTTON_HOLD_THRESHOLD) // short press
+            {
+                isRightButton ? changeMode(true) : changeMode(false);
+            }
         }
         else 
         {
-            isRightButton ? rightButtonSinglePress = true : leftButtonSinglePress = true;
+            isRightButton ? rightButtonState = !rightButtonState : leftButtonState = !leftButtonState;
         }
 
-        isRightButton ? lastRightButtonPressTime = currentTime : lastLeftButtonPressTime = currentTime;
-        isRightButton ? rightButtonState = true : leftButtonState = true;
-    }
-    else if (currentState)
-    {
-        isRightButton ? rightButtonState = false : leftButtonState = false;
-    }
-
-    bool singlePress = isRightButton ? rightButtonSinglePress : leftButtonSinglePress;
-    unsigned long lastTime = isRightButton ? lastRightButtonPressTime : lastLeftButtonPressTime;
-    if (singlePress && millis() - lastTime > DOUBLE_CLICK_THRESHOLD)
-    {
-        isRightButton ? rightButtonSinglePress = false : leftButtonSinglePress = false;
-        changeBrightness(isRightButton);
+        isRightButton ? rightButtonActive = false : leftButtonActive = false;
     }
 }
 
@@ -132,8 +149,6 @@ void setup()
     rainbowSoundReactiveEvent.set(50, rainbowSoundReactive);
     rainbowAngelTraceEvent.set(45, rainbowAngelTrace);
     cancelAllEvents();
-
-    lastLeftButtonPressTime = lastRightButtonPressTime = millis();
 }
 
 
@@ -141,6 +156,11 @@ void loop()
 {   
     handleButtons(false);
     handleButtons(true);
+
+    if (leftButtonLongPressActive)
+        changeBrightness(false);
+    else if (rightButtonLongPressActive)
+        changeBrightness(true);
     
     if (currentMode == NUM_MODES)
         currentMode = 0;
