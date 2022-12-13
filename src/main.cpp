@@ -2,6 +2,7 @@
 #include <led_effects.h>
 #include <constants.h>
 #include <TimerEvent.h>
+#include <vector>
 
 
 int currentBrightness = MIN_BRIGHTNESS;
@@ -26,41 +27,27 @@ TimerEvent rainbowAngelEvent;
 TimerEvent rainbowSoundReactiveEvent;
 TimerEvent rainbowAngelTraceEvent;
 
+std::vector<TimerEvent*> timerEvents;
+
 
 void cancelAllEvents()
 {
-    rainbowSpinEvent.disable();
-    rainbowSpinEvent.reset();
-
-    rainbowWipeEvent.disable();
-    rainbowWipeEvent.reset();
-
-    rainbowTheaterEvent.disable();
-    rainbowTheaterEvent.reset();
-
-    rainbowTraceEvent.disable();
-    rainbowTraceEvent.reset();
-
-    rainbowAngelEvent.disable();
-    rainbowAngelEvent.reset();
-
-    rainbowSoundReactiveEvent.disable();
-    rainbowSoundReactiveEvent.reset();
-
-    rainbowAngelTraceEvent.disable();
-    rainbowAngelTraceEvent.reset();
+    for (int i = 0; i < NUM_MODES; ++i)
+    {
+        TimerEvent* event = timerEvents.at(i);
+        event->disable();
+        event->reset();
+    }
 }
 
 
 void updateAllEvents()
 {
-    rainbowSpinEvent.update();
-    rainbowWipeEvent.update();
-    rainbowTheaterEvent.update();
-    rainbowTraceEvent.update();
-    rainbowAngelEvent.update();
-    rainbowSoundReactiveEvent.update();
-    rainbowAngelTraceEvent.update();
+    for (int i = 0; i < NUM_MODES; ++i)
+    {
+        TimerEvent* event = timerEvents.at(i);
+        event->update();
+    }
 }
 
 
@@ -144,12 +131,26 @@ void setup()
     CircuitPlayground.redLED(true);
 
     rainbowSpinEvent.set(2, rainbowSpin);
+    timerEvents.push_back(&rainbowSpinEvent);
+
     rainbowWipeEvent.set(50, rainbowWipe);
+    timerEvents.push_back(&rainbowWipeEvent);
+
     rainbowTheaterEvent.set(100, rainbowTheater);
+    timerEvents.push_back(&rainbowTheaterEvent);
+
     rainbowTraceEvent.set(50, rainbowTrace);
+    timerEvents.push_back(&rainbowTraceEvent);
+
     rainbowAngelEvent.set(45, rainbowAngel);
+    timerEvents.push_back(&rainbowAngelEvent);
+
     rainbowSoundReactiveEvent.set(50, rainbowSoundReactive);
+    timerEvents.push_back(&rainbowSoundReactiveEvent);
+
     rainbowAngelTraceEvent.set(45, rainbowAngelTrace);
+    timerEvents.push_back(&rainbowAngelTraceEvent);
+
     cancelAllEvents();
 }
 
@@ -175,20 +176,8 @@ void loop()
         {
             cancelAllEvents();
 
-            if (currentMode == 0)
-                rainbowSpinEvent.enable();
-            else if (currentMode == 1)
-                rainbowWipeEvent.enable();
-            else if (currentMode == 2)
-                rainbowTheaterEvent.enable();
-            else if (currentMode == 3)
-                rainbowTraceEvent.enable();
-            else if (currentMode == 4)
-                rainbowAngelEvent.enable();
-            else if (currentMode == 5)
-                rainbowSoundReactiveEvent.enable();
-            else if (currentMode == 6)
-                rainbowAngelTraceEvent.enable();
+            TimerEvent* event = timerEvents.at(currentMode);
+            event->enable();
 
             previousMode = currentMode;
         }
