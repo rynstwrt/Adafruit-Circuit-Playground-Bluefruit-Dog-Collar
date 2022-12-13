@@ -41,16 +41,6 @@ void cancelAllEvents()
 }
 
 
-void updateAllEvents()
-{
-    for (int i = 0; i < NUM_MODES; ++i)
-    {
-        TimerEvent* event = timerEvents.at(i);
-        event->update();
-    }
-}
-
-
 void changeMode(bool increase)
 {
     currentMode += increase ? 1 : -1;
@@ -189,5 +179,9 @@ void loop()
         previousMode = -1;
     }
 
-    updateAllEvents();
+    for (int i = 0; i < NUM_MODES; ++i)
+    {
+        TimerEvent* event = timerEvents.at(i);
+        event->update();
+    }
 }
